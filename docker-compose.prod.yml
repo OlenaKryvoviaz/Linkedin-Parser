@@ -1,0 +1,121 @@
+# Production Docker Compose Configuration
+# Use this for production deployments with additional services
+
+version: '3.8'
+
+services:
+  linkedin-pdf-downloader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linkedin-pdf-downloader
+    restart: always
+    
+    ports:
+      - "3000:3000"
+    
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - LINKEDIN_EMAIL=${LINKEDIN_EMAIL}
+      - LINKEDIN_PASSWORD=${LINKEDIN_PASSWORD}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+    
+    volumes:
+      - ./linkedin-cookies.json:/app/linkedin-cookies.json
+      - chrome-user-data:/app/.chrome-user-data
+      - ./downloads:/app/downloads
+      - ./logs:/app/logs
+    
+    security_opt:
+      - seccomp:unconfined
+    
+    # Production resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 3G
+        reservations:
+          cpus: '1'
+          memory: 1.5G
+    
+    # Health check with longer timeout for production
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 60s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+    
+    # Structured logging for production
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        compress: "true"
+        labels: "production"
+    
+    # Network configuration
+    networks:
+      - linkedin-pdf-network
+    
+    # Dependency on optional services
+    depends_on:
+      - watchtower
+
+  # Watchtower - Automatically update containers when new images are available
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=86400  # Check once per day
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_REVIVE_STOPPED=false
+    networks:
+      - linkedin-pdf-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  # Nginx - Reverse proxy (optional - uncomment if needed)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: nginx-proxy
+  #   restart: always
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #     - nginx-logs:/var/log/nginx
+  #   depends_on:
+  #     - linkedin-pdf-downloader
+  #   networks:
+  #     - linkedin-pdf-network
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "20m"
+  #       max-file: "3"
+
+networks:
+  linkedin-pdf-network:
+    driver: bridge
+
+volumes:
+  chrome-user-data:
+    driver: local
+  # nginx-logs:
+  #   driver: local

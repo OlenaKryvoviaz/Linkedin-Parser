@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables (IMPORTANT - Contains credentials!)
+.env
+
+# LinkedIn session cookies (Contains auth tokens)
+linkedin-cookies.json
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+
+# Chrome user data and crash dumps
+.chrome-user-data/
+.chrome-user-data-temp/
+.chrome-test-data/
+.chrome-crashes/
+
+# Downloads folder
+downloads/
+
+# Debug screenshots
+debug-*.png
+
+# Production configs with sensitive data
+.env.production
+.env.local
+
+# PM2 logs
+logs/
+*.log
+
+# Docker volumes
+docker-volumes/
