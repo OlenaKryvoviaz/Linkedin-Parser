@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn Profile PDF Downloader</title>
+    <title>LinkedIn PDF Downloader</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -24,26 +24,16 @@
         .container {
             background: white;
             padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             max-width: 500px;
             width: 100%;
         }
 
         h1 {
             color: #0077b5;
-            margin-bottom: 10px;
-            font-size: 28px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .subtitle {
-            color: #666;
             margin-bottom: 30px;
-            font-size: 14px;
-            line-height: 1.5;
+            text-align: center;
         }
 
         .form-group {
@@ -52,634 +42,243 @@
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             color: #333;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: bold;
         }
 
         input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
             font-size: 14px;
-            transition: all 0.3s;
-            font-family: inherit;
         }
 
         input:focus {
             outline: none;
             border-color: #0077b5;
-            box-shadow: 0 0 0 3px rgba(0, 119, 181, 0.1);
-        }
-
-        input::placeholder {
-            color: #aaa;
         }
 
         button {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: #0077b5;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            font-family: inherit;
         }
 
-        button:hover:not(:disabled) {
+        button:hover {
             background: #005885;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 119, 181, 0.3);
-        }
-
-        button:active:not(:disabled) {
-            transform: translateY(0);
         }
 
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .status {
+        .message {
             margin-top: 20px;
             padding: 15px;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 5px;
             display: none;
-            animation: slideIn 0.3s ease;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .status.show {
+        .message.show {
             display: block;
         }
 
-        .status.queued {
-            background: #e3f2fd;
-            color: #1565c0;
-            border: 1px solid #90caf9;
-        }
-
-        .status.processing {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .status.success {
+        .message.success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
-        .status.error {
+        .message.error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
         }
 
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #0077b5;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .example {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
-
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        .login-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
             text-align: center;
-            font-size: 12px;
-            color: #999;
-        }
-
-        .icon {
-            font-size: 32px;
-        }
-
-        .linkedin-status {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 25px;
             font-size: 14px;
-            transition: all 0.3s;
         }
 
-        .linkedin-status.connected {
+        .login-status.logged-in {
             background: #d4edda;
-            border: 1px solid #c3e6cb;
             color: #155724;
         }
 
-        .linkedin-status.disconnected {
+        .login-status.not-logged-in {
             background: #f8d7da;
-            border: 1px solid #f5c6cb;
             color: #721c24;
         }
 
-        .linkedin-status.checking {
-            background: #e3f2fd;
-            border: 1px solid #90caf9;
-            color: #1565c0;
-        }
-
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        .linkedin-status.connected .status-indicator {
-            background: #28a745;
-        }
-
-        .linkedin-status.disconnected .status-indicator {
+        .clear-cookies-btn {
+            width: 100%;
+            padding: 8px;
             background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 20px;
         }
 
-        .linkedin-status.checking .status-indicator {
-            background: #0077b5;
+        .clear-cookies-btn:hover {
+            background: #c82333;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .status-account {
-            font-weight: 600;
-            margin-left: 5px;
-        }
-
-        .or-divider {
-            position: relative;
-            text-align: center;
-            margin: 20px 0;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .or-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e0e0e0;
-            z-index: 0;
-        }
-
-        .or-divider span {
-            display: inline-block;
-            padding: 0 15px;
-            background: white;
-            position: relative;
-            z-index: 1;
+        .clear-cookies-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>
-            <span class="icon">📄</span>
-            LinkedIn PDF Downloader
-        </h1>
-        <p class="subtitle">
-            Download your LinkedIn profile as PDF and receive it via email. 
-            Log in with your LinkedIn account or provide a profile URL.
-        </p>
-
-        <div id="linkedinStatus" class="linkedin-status">
-            <span class="status-indicator"></span>
-            <span class="status-text">Checking bot account status...</span>
-        </div>
-
-        <!-- Single Email Field (used for both methods) -->
-        <div class="form-group">
-            <label for="pdfEmail">Email to Send PDF</label>
-            <input 
-                type="email" 
-                id="pdfEmail" 
-                placeholder="your@email.com" 
-                required
-            >
-            <div class="example">Where to send the PDF</div>
+        <h1>LinkedIn PDF Downloader</h1>
+        
+        <div id="loginStatus" class="login-status">
+            Checking login status...
         </div>
         
-        <!-- User Login Form -->
-        <form id="userLoginForm">
+        <button type="button" id="clearCookiesBtn" class="clear-cookies-btn">
+            Clear Cookies & Re-login
+        </button>
+        
+        <form id="downloadForm">
             <div class="form-group">
-                <label for="userEmail">LinkedIn Email</label>
+                <label for="linkedinUrl">LinkedIn Profile URL</label>
+                <input 
+                    type="url" 
+                    id="linkedinUrl" 
+                    placeholder="https://www.linkedin.com/in/username" 
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
                 <input 
                     type="email" 
-                    id="userEmail" 
-                    placeholder="your-linkedin@email.com" 
+                    id="email" 
+                    placeholder="your@email.com" 
                     required
                 >
-                <div class="example">Your LinkedIn account email</div>
             </div>
             
-            <div class="form-group">
-                <label for="userPassword">LinkedIn Password</label>
-                <input 
-                    type="password" 
-                    id="userPassword" 
-                    placeholder="Your LinkedIn password" 
-                    required
-                >
-                <div class="example">We don't store your password</div>
-            </div>
-            
-            <button type="submit" id="loginBtn">
-                Log in to LinkedIn & Get PDF
-            </button>
+            <button type="submit" id="submitBtn">Send PDF</button>
         </form>
-
-        <!-- Alternative: URL Form (shown if login fails) -->
-        <div id="urlFormSection" style="display: none;">
-            <div class="or-divider">
-                <span>Or use profile URL</span>
-            </div>
-            
-            <form id="urlDownloadForm">
-                <div class="form-group">
-                    <label for="linkedinUrl">LinkedIn Profile URL</label>
-                    <input 
-                        type="url" 
-                        id="linkedinUrl" 
-                        placeholder="https://www.linkedin.com/in/username" 
-                        required
-                    >
-                    <div class="example">Example: https://www.linkedin.com/in/john-doe</div>
-                </div>
-                
-                <button type="submit" id="submitBtn">
-                    Download & Send PDF
-                </button>
-            </form>
-        </div>
         
-        <div id="status" class="status"></div>
-
-        <div class="footer">
-            Powered by Puppeteer & Node.js
-        </div>
+        <div id="message" class="message"></div>
     </div>
 
     <script>
-        const userLoginForm = document.getElementById('userLoginForm');
-        const urlDownloadForm = document.getElementById('urlDownloadForm');
-        const urlFormSection = document.getElementById('urlFormSection');
-        const statusDiv = document.getElementById('status');
-        const loginBtn = document.getElementById('loginBtn');
+        const form = document.getElementById('downloadForm');
+        const messageDiv = document.getElementById('message');
         const submitBtn = document.getElementById('submitBtn');
-        const linkedinStatusDiv = document.getElementById('linkedinStatus');
-        let currentRequestId = null;
-        let statusInterval = null;
-        let linkedinStatusInterval = null;
+        const loginStatusDiv = document.getElementById('loginStatus');
+        const clearCookiesBtn = document.getElementById('clearCookiesBtn');
 
-        const statusMessages = {
-            logging_in: {
-                class: 'processing',
-                icon: '🔐',
-                title: 'Logging In',
-                message: 'Logging in to your LinkedIn account...'
-            },
-            waiting_for_verification: {
-                class: 'processing',
-                icon: '🤖',
-                title: 'Action Required',
-                message: 'Please solve the CAPTCHA or verification challenge in the browser window that opened!'
-            },
-            generating_pdf: {
-                class: 'processing',
-                icon: '🔄',
-                title: 'In Progress',
-                message: 'Downloading and generating LinkedIn profile PDF...'
-            },
-            sending_email: {
-                class: 'processing',
-                icon: '📧',
-                title: 'Sending',
-                message: 'Sending the PDF to your email address...'
-            },
-            completed: {
-                class: 'success',
-                icon: '✅',
-                title: 'Success',
-                message: 'PDF sent successfully!'
-            },
-            failed: {
-                class: 'error',
-                icon: '❌',
-                title: 'Error',
-                message: 'Failed to process request'
+        // Check login status
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('http://localhost:3000/api/status');
+                const data = await response.json();
+                
+                if (data.loggedIn) {
+                    loginStatusDiv.className = 'login-status logged-in';
+                    loginStatusDiv.textContent = `✓ Logged in as ${data.account}`;
+                } else {
+                    loginStatusDiv.className = 'login-status not-logged-in';
+                    loginStatusDiv.textContent = `✗ Not logged in to LinkedIn`;
+                }
+            } catch (error) {
+                loginStatusDiv.className = 'login-status not-logged-in';
+                loginStatusDiv.textContent = 'Cannot connect to server';
             }
-        };
+        }
 
-        // User login form submission
-        userLoginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const userEmail = document.getElementById('userEmail').value.trim();
-            const userPassword = document.getElementById('userPassword').value.trim();
-            const pdfEmail = document.getElementById('pdfEmail').value.trim();
-            
-            // Validate that email is provided
-            if (!pdfEmail) {
-                showError('Please provide an email address to send the PDF to');
+        // Check on load
+        checkLoginStatus();
+        // Recheck every 30 seconds
+        setInterval(checkLoginStatus, 30000);
+
+        // Clear cookies button
+        clearCookiesBtn.addEventListener('click', async () => {
+            if (!confirm('This will clear LinkedIn cookies and force a fresh login. Continue?')) {
                 return;
             }
             
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Logging in...';
+            clearCookiesBtn.disabled = true;
+            clearCookiesBtn.textContent = 'Clearing cookies...';
+            loginStatusDiv.textContent = 'Clearing cookies and re-logging in...';
             
             try {
-                const response = await fetch('http://localhost:3000/api/user-login-download', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        userEmail, 
-                        userPassword, 
-                        emailAddress: pdfEmail 
-                    })
+                const response = await fetch('http://localhost:3000/api/clear-cookies', {
+                    method: 'POST'
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    currentRequestId = data.requestId;
-                    // Show success message about login
-                    statusDiv.className = 'status success show';
-                    statusDiv.innerHTML = `✅ <strong>Success:</strong> You successfully logged in to <strong>${userEmail}</strong> LinkedIn profile. Processing your PDF...`;
-                    
-                    // Clear password field for security
-                    document.getElementById('userPassword').value = '';
-                    
-                    // Start polling for status
-                    updateStatus('generating_pdf', pdfEmail);
-                    startStatusPolling();
+                    alert('✓ Cookies cleared and re-logged in successfully!');
+                    checkLoginStatus();
                 } else {
-                    throw new Error(data.error || 'Login failed');
+                    alert('✗ Error: ' + (data.error || 'Failed to clear cookies'));
                 }
-                
             } catch (error) {
-                showError(error.message);
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Log in to LinkedIn & Get PDF';
-                
-                // Show URL form as fallback
-                if (error.message.includes('Login failed') || error.message.includes('credentials')) {
-                    urlFormSection.style.display = 'block';
-                    statusDiv.className = 'status error show';
-                    statusDiv.innerHTML = `❌ <strong>Login Failed:</strong> Please use the profile URL method below instead.`;
-                }
+                alert('✗ Error: ' + error.message);
+            } finally {
+                clearCookiesBtn.disabled = false;
+                clearCookiesBtn.textContent = 'Clear Cookies & Re-login';
             }
         });
 
-        // URL-based download form submission
-        if (urlDownloadForm) {
-            urlDownloadForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const linkedinUrl = document.getElementById('linkedinUrl').value.trim();
-                const pdfEmail = document.getElementById('pdfEmail').value.trim();
-                
-                // Validate that email is provided
-                if (!pdfEmail) {
-                    showError('Please provide an email address to send the PDF to');
-                    return;
-                }
-                
-                // Validate LinkedIn URL format
-                if (!linkedinUrl.includes('linkedin.com/in/')) {
-                    showError('Please enter a valid LinkedIn profile URL (https://www.linkedin.com/in/username)');
-                    return;
-                }
-                
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Processing...';
-                
-                try {
-                    const response = await fetch('http://localhost:3000/api/download-profile', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ linkedinUrl, emailAddress: pdfEmail })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        currentRequestId = data.requestId;
-                        updateStatus('generating_pdf', pdfEmail);
-                        startStatusPolling();
-                    } else {
-                        throw new Error(data.error || 'Something went wrong');
-                    }
-                    
-                } catch (error) {
-                    showError(error.message);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Download & Send PDF';
-                }
-            });
-        }
-
-        function showError(message) {
-            statusDiv.className = 'status error show';
-            statusDiv.innerHTML = `❌ <strong>Error:</strong> ${message}`;
-        }
-
-        function updateStatus(status, email = '') {
-            const config = statusMessages[status];
-            if (!config) return;
-
-            statusDiv.className = `status ${config.class} show`;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            let message = config.message;
-            if (status === 'completed' && email) {
-                message = `PDF file was sent to <strong>${email}</strong>`;
-            }
-
-            const loader = (status === 'generating_pdf' || status === 'sending_email' || status === 'logging_in' || status === 'waiting_for_verification') 
-                ? '<span class="loader"></span>' 
-                : config.icon + ' ';
-
-            statusDiv.innerHTML = `
-                ${loader}<strong>${config.title}:</strong> ${message}
-            `;
-        }
-
-        async function checkStatus() {
-            if (!currentRequestId) return;
-
+            const linkedinUrl = document.getElementById('linkedinUrl').value;
+            const email = document.getElementById('email').value;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            messageDiv.classList.remove('show', 'success', 'error');
+            
             try {
-                const response = await fetch(`http://localhost:3000/api/status/${currentRequestId}`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to check status');
-                }
+                const response = await fetch('http://localhost:3000/api/download-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ linkedinUrl, emailAddress: email })
+                });
                 
                 const data = await response.json();
-                const email = document.getElementById('pdfEmail').value;
                 
-                updateStatus(data.status, email);
-
-                // If completed or failed, stop polling
-                if (data.status === 'completed' || data.status === 'failed') {
-                    stopStatusPolling();
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Log in to LinkedIn & Get PDF';
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Download & Send PDF';
-                    }
-                    
-                    // Reset form on success after 5 seconds
-                    if (data.status === 'completed') {
-                        setTimeout(() => {
-                            userLoginForm.reset();
-                            if (urlDownloadForm) urlDownloadForm.reset();
-                            document.getElementById('pdfEmail').value = '';
-                            statusDiv.classList.remove('show');
-                            currentRequestId = null;
-                        }, 5000);
-                    }
-                    
-                    // Show error details if failed
-                    if (data.status === 'failed' && data.message) {
-                        statusDiv.innerHTML = `❌ <strong>Error:</strong> ${data.message}`;
-                        // Show URL form as fallback on user login failure or if needsUrl flag is set
-                        if (data.loginMethod === 'user' || data.needsUrl) {
-                            urlFormSection.style.display = 'block';
-                            // Populate the email field if it's empty
-                            const pdfEmailField = document.getElementById('pdfEmail');
-                            if (pdfEmailField && pdfEmailField.value) {
-                                // Email already populated, just show the form
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking status:', error);
-                // Don't show error to user, just log it
-            }
-        }
-
-        function startStatusPolling() {
-            checkStatus(); // Check immediately
-            statusInterval = setInterval(checkStatus, 2000); // Then every 2 seconds
-        }
-
-        function stopStatusPolling() {
-            if (statusInterval) {
-                clearInterval(statusInterval);
-                statusInterval = null;
-            }
-        }
-
-        // Check LinkedIn connection status
-        async function checkLinkedInStatus() {
-            try {
-                const response = await fetch('http://localhost:3000/api/linkedin-status');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('Bot account status:', data); // Debug log
-                
-                if (data.loggedIn) {
-                    linkedinStatusDiv.className = 'linkedin-status connected';
-                    linkedinStatusDiv.innerHTML = `
-                        <span class="status-indicator"></span>
-                        <span class="status-text">✓ Bot account connected: <span class="status-account">${data.account}</span></span>
-                    `;
+                if (response.ok) {
+                    messageDiv.className = 'message success show';
+                    messageDiv.textContent = `✓ ${data.message}`;
+                    form.reset();
                 } else {
-                    linkedinStatusDiv.className = 'linkedin-status disconnected';
-                    linkedinStatusDiv.innerHTML = `
-                        <span class="status-indicator"></span>
-                        <span class="status-text">✗ Bot account initializing...</span>
-                    `;
+                    throw new Error(data.error || 'Something went wrong');
                 }
+                
             } catch (error) {
-                console.error('Bot account status check error:', error); // Debug log
-                linkedinStatusDiv.className = 'linkedin-status disconnected';
-                linkedinStatusDiv.innerHTML = `
-                    <span class="status-indicator"></span>
-                    <span class="status-text">✗ Cannot connect to server - ${error.message}</span>
-                `;
+                messageDiv.className = 'message error show';
+                messageDiv.textContent = `✗ Error: ${error.message}`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send PDF';
             }
-        }
-
-        // Start LinkedIn status polling
-        function startLinkedInStatusPolling() {
-            checkLinkedInStatus(); // Check immediately
-            linkedinStatusInterval = setInterval(checkLinkedInStatus, 5000); // Then every 5 seconds
-        }
-
-        // Stop LinkedIn status polling
-        function stopLinkedInStatusPolling() {
-            if (linkedinStatusInterval) {
-                clearInterval(linkedinStatusInterval);
-                linkedinStatusInterval = null;
-            }
-        }
-
-        // Initialize on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            startLinkedInStatusPolling();
-        });
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            stopStatusPolling();
-            stopLinkedInStatusPolling();
         });
     </script>
 </body>
